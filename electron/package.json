@@ -1,0 +1,23 @@
+{
+  "name": "imessage-bridge-desktop",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.0.0"
+  },
+  "build": {
+    "appId": "com.imessage-bridge.desktop",
+    "win": {
+      "target": "nsis",
+      "icon": "assets/tray-icon.png"
+    }
+  }
+}
