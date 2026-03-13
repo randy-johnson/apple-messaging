@@ -45,8 +45,8 @@ router.post('/send', async (req, res) => {
     }
 
     const svc = service || 'iMessage';
-    if (svc !== 'iMessage' && svc !== 'SMS') {
-      return res.status(400).json({ error: 'service must be "iMessage" or "SMS"' });
+    if (svc !== 'iMessage' && svc !== 'SMS' && svc !== 'RCS') {
+      return res.status(400).json({ error: 'service must be "iMessage", "SMS", or "RCS"' });
     }
 
     const result = await sendMessage(handle, svc, text);

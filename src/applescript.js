@@ -15,7 +15,7 @@ export async function sendMessage(handle, service, text) {
 
   const script = `
     tell application "Messages"
-      set targetService to 1st account whose service type = ${service === 'SMS' ? 'SMS' : 'iMessage'}
+      set targetService to 1st account whose service type = ${service === 'SMS' || service === 'RCS' ? 'SMS' : 'iMessage'}
       set targetBuddy to participant "${escapedHandle}" of targetService
       send "${escapedText}" to targetBuddy
     end tell

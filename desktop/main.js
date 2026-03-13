@@ -1,15 +1,17 @@
 const { app, BrowserWindow, Tray, nativeImage, Notification } = require('electron');
+
 const path = require('path');
 const WebSocket = require('ws');
 
 const BRIDGE_URL = process.env.BRIDGE_URL || 'http://macbook.local:3000';
 const BRIDGE_WS = process.env.BRIDGE_WS || 'ws://macbook.local:3000';
 
-let tray, win, ws;
-const iconNormal = nativeImage.createFromPath(path.join(__dirname, 'assets/tray-icon.png'));
-const iconAlert = nativeImage.createFromPath(path.join(__dirname, 'assets/tray-icon-alert.png'));
+let tray, win, ws, iconNormal, iconAlert;
 
 app.whenReady().then(() => {
+  iconNormal = nativeImage.createFromPath(path.join(__dirname, 'assets/tray-icon.png'));
+  iconAlert = nativeImage.createFromPath(path.join(__dirname, 'assets/tray-icon-alert.png'));
+
   // System Tray
   tray = new Tray(iconNormal);
   tray.setToolTip('iMessage Bridge');
