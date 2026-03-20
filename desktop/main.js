@@ -3,8 +3,8 @@ const { app, BrowserWindow, Tray, nativeImage, Notification } = require('electro
 const path = require('path');
 const WebSocket = require('ws');
 
-const BRIDGE_URL = process.env.BRIDGE_URL || 'http://macbook.local:3000';
-const BRIDGE_WS = process.env.BRIDGE_WS || 'ws://macbook.local:3000';
+const BRIDGE_URL = process.env.BRIDGE_URL || 'http://macbook.local:4008';
+const BRIDGE_WS = process.env.BRIDGE_WS || 'ws://macbook.local:4008';
 
 let tray, win, ws, iconNormal, iconAlert;
 

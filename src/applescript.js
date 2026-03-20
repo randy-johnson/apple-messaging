@@ -41,8 +41,10 @@ export async function markChatAsRead(chatGuid) {
 
   const script = `
     tell application "Messages"
-      set targetChat to a reference to chat id "${escapedId}"
-      set active chat to targetChat
+      set theChats to every chat whose id is "${escapedId}"
+      if (count of theChats) > 0 then
+        set active chat to item 1 of theChats
+      end if
     end tell
   `;
 
