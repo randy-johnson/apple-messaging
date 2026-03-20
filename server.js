@@ -10,7 +10,7 @@ import { loadContacts } from './src/contacts.js';
 import { ensureMessagesRunning } from './src/applescript.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4008;
 
 const app = express();
 const server = createServer(app);

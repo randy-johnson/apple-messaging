@@ -4,3 +4,5 @@ desktop/node_modules/
 desktop-forge/node_modules/
 desktop-forge/out/
 desktop-forge/.vite/
+
+.history/
