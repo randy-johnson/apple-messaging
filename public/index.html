@@ -11,6 +11,7 @@
     <aside id="sidebar">
       <div id="sidebar-header">
         <h1>Messages</h1>
+        <input type="text" id="search-input" placeholder="Search conversations..." autocomplete="off">
       </div>
       <div id="conversation-list"></div>
     </aside>
@@ -24,7 +25,7 @@
       <div id="messages"></div>
 
       <form id="compose" class="hidden">
-        <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off">
+        <textarea id="message-input" placeholder="Type a message..." autocomplete="off" rows="1"></textarea>
         <button type="submit" id="send-btn">Send</button>
       </form>
     </main>

@@ -6,12 +6,31 @@ const composeForm = document.getElementById('compose');
 const messageInput = document.getElementById('message-input');
 const sendBtn = document.getElementById('send-btn');
 
+const searchInput = document.getElementById('search-input');
+
 let conversations = [];
 let activeConversationId = null;
 let activeConversation = null;
 
+// --- Pinned Conversations ---
+let pinnedIds = new Set(JSON.parse(localStorage.getItem('pinnedConversations') || '[]'));
+
+function savePinnedIds() {
+  localStorage.setItem('pinnedConversations', JSON.stringify([...pinnedIds]));
+}
+
+function togglePin(chatIdentifier) {
+  if (pinnedIds.has(chatIdentifier)) {
+    pinnedIds.delete(chatIdentifier);
+  } else {
+    pinnedIds.add(chatIdentifier);
+  }
+  savePinnedIds();
+  renderConversations();
+}
+
 // Notification sound
-const notifSound = new Audio('/sounds/notification.wav');
+const notifSound = new Audio('/sounds/icq-uh-oh.mp3');
 
 // --- WebSocket ---
 const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -48,7 +67,34 @@ async function loadConversations() {
 
 function renderConversations() {
   conversationList.innerHTML = '';
-  for (const conv of conversations) {
+  const searchTerm = searchInput.value.trim().toLowerCase();
+
+  let filtered = searchTerm
+    ? conversations.filter(c =>
+        (c.displayName || '').toLowerCase().includes(searchTerm) ||
+        (c.chatIdentifier || '').toLowerCase().includes(searchTerm))
+    : conversations;
+
+  // Sort: pinned first, then by lastMessageDate
+  filtered = [...filtered].sort((a, b) => {
+    const aPinned = pinnedIds.has(a.chatIdentifier) ? 1 : 0;
+    const bPinned = pinnedIds.has(b.chatIdentifier) ? 1 : 0;
+    if (aPinned !== bPinned) return bPinned - aPinned;
+    return (b.lastMessageDate || 0) - (a.lastMessageDate || 0);
+  });
+
+  let lastWasPinned = false;
+  for (const conv of filtered) {
+    const isPinned = pinnedIds.has(conv.chatIdentifier);
+
+    // Add separator between pinned and unpinned sections
+    if (lastWasPinned && !isPinned) {
+      const sep = document.createElement('div');
+      sep.className = 'pin-separator';
+      conversationList.appendChild(sep);
+    }
+    lastWasPinned = isPinned;
+
     const el = document.createElement('div');
     el.className = 'conversation-item' + (conv.id === activeConversationId ? ' active' : '');
     el.dataset.id = conv.id;
@@ -57,19 +103,27 @@ function renderConversations() {
     const unreadBadge = conv.unreadCount > 0
       ? `<span class="unread-badge">${conv.unreadCount}</span>`
       : '';
+    const pinIcon = isPinned ? '<span class="pin-icon" title="Unpin">📌</span>' : '';
 
     el.innerHTML = `
       <div class="conv-top">
-        <span class="conv-name">${escapeHtml(conv.displayName)}${unreadBadge}</span>
+        <span class="conv-name">${pinIcon}${escapeHtml(conv.displayName)}${unreadBadge}</span>
         <span class="conv-time">${timeStr}</span>
       </div>
       <div class="conv-preview">${escapeHtml(conv.lastMessage)}</div>
     `;
 
     el.addEventListener('click', () => selectConversation(conv));
+    el.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      togglePin(conv.chatIdentifier);
+    });
     conversationList.appendChild(el);
   }
 }
+
+// Re-render on search input
+searchInput.addEventListener('input', () => renderConversations());
 
 // --- Select Conversation ---
 async function selectConversation(conv) {
@@ -80,6 +134,12 @@ async function selectConversation(conv) {
   chatService.textContent = conv.serviceName || '';
   chatService.className = conv.serviceName || '';
   composeForm.classList.remove('hidden');
+
+  // Mark as read (optimistic UI update + server call)
+  if (conv.unreadCount > 0) {
+    conv.unreadCount = 0;
+    fetch(`/api/conversations/${conv.id}/read`, { method: 'POST' }).catch(() => {});
+  }
 
   renderConversations(); // Update active state
 
@@ -208,6 +268,7 @@ composeForm.addEventListener('submit', async (e) => {
       }),
     });
     messageInput.value = '';
+    messageInput.style.height = 'auto';
   } catch (err) {
     console.error('Failed to send message:', err);
     alert('Failed to send message. Check the server logs.');
@@ -216,6 +277,20 @@ composeForm.addEventListener('submit', async (e) => {
     messageInput.disabled = false;
     messageInput.focus();
   }
+});
+
+// --- Textarea auto-grow and Enter to send ---
+messageInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    composeForm.requestSubmit();
+  }
+});
+
+messageInput.addEventListener('input', () => {
+  messageInput.style.height = 'auto';
+  messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+  messageInput.style.overflowY = messageInput.scrollHeight > 120 ? 'auto' : 'hidden';
 });
 
 // --- Utilities ---

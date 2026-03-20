@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getConversations, getMessages } from '../messagePoller.js';
-import { sendMessage } from '../applescript.js';
+import { sendMessage, markChatAsRead } from '../applescript.js';
 import { reloadContacts } from '../contacts.js';
 
 const router = Router();
@@ -32,6 +32,28 @@ router.get('/conversations/:id/messages', (req, res) => {
   } catch (err) {
     console.error('Error fetching messages:', err.message);
     res.status(500).json({ error: 'Failed to fetch messages' });
+  }
+});
+
+// Mark conversation as read
+router.post('/conversations/:id/read', async (req, res) => {
+  try {
+    const chatId = parseInt(req.params.id, 10);
+    if (isNaN(chatId)) {
+      return res.status(400).json({ error: 'Invalid conversation ID' });
+    }
+
+    const conversations = getConversations();
+    const conv = conversations.find(c => c.id === chatId);
+    if (!conv) {
+      return res.status(404).json({ error: 'Conversation not found' });
+    }
+
+    const result = await markChatAsRead(conv.chatGuid);
+    res.json(result);
+  } catch (err) {
+    console.error('Error marking as read:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 

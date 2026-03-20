@@ -33,6 +33,29 @@ export async function sendMessage(handle, service, text) {
 }
 
 /**
+ * Mark a conversation as read by setting it as the active chat in Messages.app.
+ * @param {string} chatGuid - The chat guid (e.g. "iMessage;-;+15551234567")
+ */
+export async function markChatAsRead(chatGuid) {
+  const escapedId = chatGuid.replace(/"/g, '\\"');
+
+  const script = `
+    tell application "Messages"
+      set targetChat to a reference to chat id "${escapedId}"
+      set active chat to targetChat
+    end tell
+  `;
+
+  try {
+    await execFileAsync('osascript', ['-e', script], { timeout: 10000 });
+    return { success: true };
+  } catch (err) {
+    console.error('AppleScript markAsRead failed:', err.message);
+    throw new Error(`Failed to mark as read: ${err.message}`);
+  }
+}
+
+/**
  * Ensure Messages.app is running.
  */
 export async function ensureMessagesRunning() {

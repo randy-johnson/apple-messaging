@@ -64,6 +64,7 @@ export function getConversations() {
   const rows = database.prepare(`
     SELECT
       c.ROWID as id,
+      c.guid as chatGuid,
       c.chat_identifier as chatIdentifier,
       c.display_name as displayName,
       c.service_name as serviceName,
@@ -107,6 +108,7 @@ export function getConversations() {
 
     return {
       id: row.id,
+      chatGuid: row.chatGuid,
       chatIdentifier: row.chatIdentifier,
       displayName: row.displayName || getContactName(row.chatIdentifier),
       serviceName: row.serviceName,
