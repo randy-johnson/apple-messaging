@@ -49,7 +49,7 @@ router.post('/conversations/:id/read', async (req, res) => {
       return res.status(404).json({ error: 'Conversation not found' });
     }
 
-    const result = await markChatAsRead(conv.chatGuid);
+    const result = await markChatAsRead(conv.chatIdentifier, conv.serviceName);
     res.json(result);
   } catch (err) {
     console.error('Error marking as read:', err.message);

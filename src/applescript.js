@@ -33,23 +33,36 @@ export async function sendMessage(handle, service, text) {
 }
 
 /**
- * Mark a conversation as read by setting it as the active chat in Messages.app.
- * @param {string} chatGuid - The chat guid (e.g. "iMessage;-;+15551234567")
+ * Mark a conversation as read by opening it via the participant buddy.
+ * @param {string} handle - The chat identifier (e.g. "+15551234567" or "user@icloud.com")
+ * @param {string} service - "iMessage" or "SMS"
  */
-export async function markChatAsRead(chatGuid) {
-  const escapedId = chatGuid.replace(/"/g, '\\"');
+export async function markChatAsRead(handle, service) {
+  const escapedHandle = handle.replace(/"/g, '\\"');
+  const serviceType = (service === 'SMS' || service === 'RCS') ? 'SMS' : 'iMessage';
 
   const script = `
     tell application "Messages"
-      set theChats to every chat whose id is "${escapedId}"
-      if (count of theChats) > 0 then
-        set active chat to item 1 of theChats
-      end if
+      set targetService to 1st account whose service type = ${serviceType}
+      set targetBuddy to participant "${escapedHandle}" of targetService
+      send "" to targetBuddy
+    end tell
+  `;
+
+  // Sending empty string may not work — alternative: just open the chat window
+  // which is enough to mark as read. Let's use a different approach:
+  // Open Messages.app to that conversation by sending a read receipt.
+  const openScript = `
+    tell application "Messages"
+      activate
+      set targetService to 1st account whose service type = ${serviceType}
+      set targetBuddy to buddy "${escapedHandle}" of targetService
+      set active chat to chat of targetBuddy
     end tell
   `;
 
   try {
-    await execFileAsync('osascript', ['-e', script], { timeout: 10000 });
+    await execFileAsync('osascript', ['-e', openScript], { timeout: 10000 });
     return { success: true };
   } catch (err) {
     console.error('AppleScript markAsRead failed:', err.message);
