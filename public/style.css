@@ -210,17 +210,14 @@ html, body {
   font-size: 14px;
   line-height: 1.4;
   word-wrap: break-word;
-  overflow-wrap: anywhere;
-  word-break: break-all;
+  overflow-wrap: break-word;
   min-width: 0;
-  overflow: hidden;
   position: relative;
 }
 
 .message .msg-text {
-  overflow-wrap: anywhere;
-  word-break: break-all;
-  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .message.from-me {
