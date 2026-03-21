@@ -22,6 +22,7 @@
 
 html, body {
   height: 100%;
+  overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: var(--bg-primary);
   color: var(--text-primary);
@@ -30,6 +31,7 @@ html, body {
 #app {
   display: flex;
   height: 100vh;
+  overflow: hidden;
 }
 
 /* Sidebar */
@@ -72,6 +74,7 @@ html, body {
 #conversation-list {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .conversation-item {
@@ -81,6 +84,7 @@ html, body {
   border-bottom: 1px solid var(--border-color);
   cursor: pointer;
   transition: background 0.15s;
+  overflow: hidden;
 }
 
 .conversation-item:hover {
@@ -96,6 +100,7 @@ html, body {
   justify-content: space-between;
   align-items: baseline;
   margin-bottom: 4px;
+  max-width: 280px;
 }
 
 .conversation-item .conv-name {
@@ -120,6 +125,7 @@ html, body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 280px;
 }
 
 .pin-separator {
@@ -148,8 +154,10 @@ html, body {
 /* Chat Area */
 #chat-area {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   background: var(--bg-primary);
 }
 
@@ -188,6 +196,7 @@ html, body {
 #messages {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -201,7 +210,17 @@ html, body {
   font-size: 14px;
   line-height: 1.4;
   word-wrap: break-word;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  min-width: 0;
+  overflow: hidden;
   position: relative;
+}
+
+.message .msg-text {
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  max-width: 100%;
 }
 
 .message.from-me {
